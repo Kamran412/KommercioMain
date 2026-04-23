@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const Product = require('../models/Product');
+const Ad = require('../models/Ad'); // ✅ Ad model import karo
 
 // @desc  Get all products (with filters, search, pagination)
 // @route GET /api/products
@@ -31,13 +32,42 @@ exports.getProducts = asyncHandler(async (req, res) => {
     .populate('seller', 'shopName shopLogo isVerifiedSeller')
     .sort(sortBy).skip(skip).limit(Number(limit));
 
+  // ✅ Active ads wale sponsored product IDs nikalo
+  const now = new Date();
+  const activeAds = await Ad.find({
+    isActive: true,
+    remainingBudget: { $gt: 0 },
+    startDate: { $lte: now },
+    endDate: { $gte: now },
+  }).select('productId adTitle');
+
+  const sponsoredMap = {};
+  activeAds.forEach((ad) => {
+    sponsoredMap[ad.productId.toString()] = ad.adTitle;
+  });
+
+  // ✅ Products mein isSponsored flag add karo
+  const taggedProducts = products.map((p) => {
+    const obj = p.toObject();
+    const adTitle = sponsoredMap[p._id.toString()];
+    obj.isSponsored = !!adTitle;
+    obj.adTitle = adTitle || null;
+    return obj;
+  });
+
+  // ✅ Sponsored products upar, baaki neeche
+  const sorted = [
+    ...taggedProducts.filter((p) => p.isSponsored),
+    ...taggedProducts.filter((p) => !p.isSponsored),
+  ];
+
   res.json({
     success: true,
     count: products.length,
     total,
     page: Number(page),
     pages: Math.ceil(total / limit),
-    products,
+    products: sorted,
   });
 });
 

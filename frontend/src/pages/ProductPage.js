@@ -65,13 +65,23 @@ export default function ProductPage() {
 
           {/* Info */}
           <div>
-            {/* Seller */}
+            {/* Seller + Sponsored Badge */}
             {product.seller && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
                 <span style={{ fontSize: 12, color: '#6c63ff', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                   {product.seller.shopName}
                 </span>
-                {product.seller.isVerifiedSeller && <span style={{ background: '#22c55e', color: '#fff', borderRadius: 99, padding: '2px 8px', fontSize: 11, fontWeight: 600 }}>✓ Verified</span>}
+                {product.seller.isVerifiedSeller && (
+                  <span style={{ background: '#22c55e', color: '#fff', borderRadius: 99, padding: '2px 8px', fontSize: 11, fontWeight: 600 }}>
+                    ✓ Verified
+                  </span>
+                )}
+                {/* ✅ Sponsored badge */}
+                {product.isSponsored && (
+                  <span style={{ background: '#fff7ed', color: '#c2410c', fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, border: '1px solid #fed7aa' }}>
+                    ⚡ Sponsored
+                  </span>
+                )}
               </div>
             )}
 
